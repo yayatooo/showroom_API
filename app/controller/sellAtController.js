@@ -1,38 +1,81 @@
 const Sell = require("../models/sellAtModel");
+const Category = require("../models/categoryBikeModel");
 
 const addSell = async (req, res) => {
   try {
-    const { name, policeNumber, frameNumber, price, capitalPrice, dateOfSale } =
-      req.body;
-
-    // Create a new instance of the Sell model
-    const sell = new Sell({
+    const {
       name,
       policeNumber,
       frameNumber,
       price,
       capitalPrice,
+      categoryBike,
+    } = req.body;
+
+    if (!categoryBike) {
+      return res.status(400).json({ error: "Category Bike is required" });
+    }
+
+    const category = await Category.findOneAndUpdate(
+      { name: categoryBike },
+      {},
+      { new: true, upsert: true }
+    );
+
+    const newSell = new Sell({
+      name,
+      policeNumber,
+      frameNumber,
+      price,
+      capitalPrice,
+      categoryBike: category._id,
     });
 
-    // Save the new sell data to the database
-    const newSell = await sell.save();
+    console.log(categoryBike);
 
-    res
+    await newSell.save();
+    return res
       .status(201)
       .json({ message: "Sell data added successfully", data: newSell });
   } catch (error) {
     console.error("Error adding sell data:", error.message);
-    res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-const getSell = async (req, res) => {
+const getSell = async (req, res, next) => {
   try {
-    const sellData = await Sell.find({}, "-__v"); // Exclude '__v' field from the result
-    res.status(200).json(sellData);
+    let { category, skip = 0, limit = 10 } = req.query;
+
+    const filterCriteria = {};
+
+    if (category) {
+      const categoryBike = await Category.findOne({ name: category });
+      if (!categoryBike) {
+        return res
+          .status(404)
+          .json({ message: `Category ${category} not found` });
+      }
+      filterCriteria.category = categoryBike._id;
+    }
+
+    let [sells, count] = await Promise.all([
+      Sell.find(filterCriteria)
+        .skip(parseInt(skip))
+        .limit(parseInt(limit))
+        .populate("category")
+        .sort("-createdAt")
+        .exec(),
+      Sell.countDocuments(filterCriteria),
+    ]);
+
+    return res.json({
+      data: sells,
+      count,
+    });
   } catch (error) {
-    console.error("Error retrieving sell data:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
