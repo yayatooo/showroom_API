@@ -44,12 +44,24 @@ const addSell = async (req, res) => {
 
 const getSell = async (req, res, next) => {
   try {
-    let { skip = 0, limit = 10 } = req.query;
+    let { category, skip = 0, limit = 10 } = req.query;
+
+    const filter = {};
+
+    if (category) {
+      const categoryObject = await Category.findOne({ name: category });
+
+      if (!categoryObject) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      filter.category = categoryObject._id;
+    }
+
     let count = await Sell.countDocuments();
-    let sells = await Sell.find()
+    let sells = await Sell.find(filter)
       .skip(parseInt(skip))
       .limit(parseInt(limit))
-      .populate("category")
       .sort("-createdAt")
       .exec();
 
