@@ -2,12 +2,30 @@ const mongoose = require("mongoose");
 
 const soldAtSchema = new mongoose.Schema(
   {
-    soldData: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Sell",
-      },
-    ],
+    name: {
+      type: String,
+      required: true,
+    },
+    policeNumber: {
+      type: String,
+      required: true,
+    },
+    frameNumber: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    capitalPrice: {
+      type: Number,
+      required: true,
+    },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+    },
   },
   { timestamps: true }
 );
