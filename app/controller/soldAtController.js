@@ -42,4 +42,24 @@ const selledBike = async (req, res) => {
   }
 };
 
-module.exports = { getSold, selledBike };
+const deleteBike = async (req, res) => {
+  const { bikeId } = req.params;
+
+  try {
+    const deletedBike = await Sold.findByIdAndDelete(bikeId);
+
+    if (!deletedBike) {
+      return res.status(404).json({ error: "Bike not found" });
+    }
+
+    res.json({
+      message: "Successfully deleted",
+      deletedBike,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { getSold, selledBike, deleteBike };
