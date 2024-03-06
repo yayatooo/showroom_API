@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
-const { required } = require("nodemon/lib/config");
 
 const userAuth = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
@@ -15,9 +17,15 @@ const userAuth = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  role: {
+    type: String,
+    enum: ["admin", "user"],
+    default: "user",
+  },
 });
 
-userAuth.static.signup = async function (email, password) {
+userAuth.statics.signup = async function (email, password) {
   // validation
 
   if (!email || !password) {
@@ -43,7 +51,7 @@ userAuth.static.signup = async function (email, password) {
   return user;
 };
 
-userAuth.static.login = async function (email, password) {
+userAuth.statics.login = async function (email, password) {
   if (!email || !password) {
     throw new Error("Email atau Password tidak boleh kosong");
   }

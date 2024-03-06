@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const sellAtRouter = require("./app/routers/sellAtRouter");
 const categoryRouter = require("./app/routers/categoryRouter");
 const soldAtRouter = require("./app/routers/soldAtRouter");
+const userAuthRouter = require("./app/routers/userAuthRouter");
 const url = "mongodb://127.0.0.1:27017/showroom";
 const app = express();
 const port = 3000;
@@ -22,6 +23,7 @@ app.use(cors());
 app.use(sellAtRouter);
 app.use(categoryRouter);
 app.use(soldAtRouter);
+app.use(userAuthRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
