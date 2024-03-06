@@ -2,22 +2,27 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
-const userAuth = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
-  },
+const userAuthSchema = new mongoose.Schema({
+  // fullName: {
+  //   type: String,
+  //   require: true,
+  // },
   email: {
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: async function (email) {
+        const user = await this.constructor.findOne({ email });
+        return !user;
+      },
+      message: "Email sudah digunakan",
+    },
   },
-
   password: {
     type: String,
     required: true,
   },
-
   role: {
     type: String,
     enum: ["admin", "user"],
@@ -25,33 +30,34 @@ const userAuth = new mongoose.Schema({
   },
 });
 
-userAuth.statics.signup = async function (email, password) {
-  // validation
+userAuthSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
 
+userAuthSchema.statics.signup = async function (email, password) {
   if (!email || !password) {
-    throw Error("Email dan Password harus diisi");
+    throw new Error("Email dan Password harus diisi");
   }
   if (!validator.isEmail(email)) {
-    throw Error("Email Salah");
+    throw new Error("Email tidak valid");
   }
   if (!validator.isStrongPassword(password)) {
-    throw Error("Password Lemah");
+    throw new Error(
+      "Password harus terdiri dari setidaknya 8 karakter, termasuk huruf besar, huruf kecil, angka, dan simbol"
+    );
   }
+  // if (!validator.isEmpty(fullName)) {
+  //   throw new Error("Nama Lengkap wajib diisi");
+  // }
 
-  const exist = await this.findOne({ email });
-
-  if (exist) {
-    throw Error("email sudah digunakan");
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(password, salt);
-  const user = await this.create({ email, password: hash });
-
-  return user;
+  return this.create({ email, password });
 };
 
-userAuth.statics.login = async function (email, password) {
+userAuthSchema.statics.login = async function (email, password) {
   if (!email || !password) {
     throw new Error("Email atau Password tidak boleh kosong");
   }
@@ -69,6 +75,6 @@ userAuth.statics.login = async function (email, password) {
   return user;
 };
 
-const User = mongoose.model("User", userAuth);
+const User = mongoose.model("User", userAuthSchema);
 
 module.exports = User;
