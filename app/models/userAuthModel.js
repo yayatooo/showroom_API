@@ -62,14 +62,14 @@ userAuthSchema.statics.login = async function (email, password) {
     throw new Error("Email atau Password tidak boleh kosong");
   }
 
-  const user = this.findOne({ email });
+  const user = await this.findOne({ email });
   if (!user) {
-    throw Error("User tidak ditemukan");
+    throw new Error("User tidak ditemukan");
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw Error("Password Salah");
+    throw new Error("Password Salah");
   }
 
   return user;
