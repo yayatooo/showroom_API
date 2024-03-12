@@ -29,4 +29,28 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const logout = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    console.log("token ini adalah", token);
+    if (!token) {
+      return res
+        .status(401)
+        .send({ auth: false, message: "No token provided" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { token: { $in: token } },
+      { $pull: { token: token } }
+    );
+
+    console.log("token :", user.token);
+
+    res.status(200).send({ auth: false, token: null });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Server Error" });
+  }
+};
+
+module.exports = { registerUser, loginUser, logout };
