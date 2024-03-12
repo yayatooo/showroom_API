@@ -1,5 +1,6 @@
 const User = require("../models/userAuthModel");
 const jwt = require("jsonwebtoken");
+const getToken = require("../middleware/getToken");
 
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET_KEY, { expiresIn: "5d" });
@@ -31,7 +32,7 @@ const registerUser = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const token = req.headers.authorization;
+    const token = getToken(req);
     console.log("token ini adalah", token);
     if (!token) {
       return res
@@ -40,9 +41,14 @@ const logout = async (req, res) => {
     }
 
     const user = await User.findOneAndUpdate(
-      { token: { $in: token } },
-      { $pull: { token: token } }
+      { token }, // Find user by token
+      { token: null }, // Set token to null
+      { new: true } // Return the updated user document
     );
+    // Check if user was found and token was removed
+    if (!user) {
+      return res.status(404).send({ auth: false, message: "User not found" });
+    }
 
     console.log("token :", user.token);
 
