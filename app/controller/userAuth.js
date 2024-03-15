@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const getToken = require("../middleware/getToken");
 
 const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.SECRET_KEY, { expiresIn: "5d" });
+  return jwt.sign({ _id }, process.env.SECRET_KEY, { expiresIn: "15m" });
 };
 
 const loginUser = async (req, res) => {

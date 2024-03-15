@@ -32,7 +32,6 @@ const addSell = async (req, res) => {
     });
 
     await newSell.save();
-    console.log(categoryBike);
     return res
       .status(201)
       .json({ message: "Sell data Berhasil Ditambahkan", data: newSell });
