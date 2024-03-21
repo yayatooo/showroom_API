@@ -33,7 +33,6 @@ const registerUser = async (req, res) => {
 const logout = async (req, res) => {
   try {
     const token = getToken(req);
-    console.log("token ini adalah", token);
     if (!token) {
       return res
         .status(401)
@@ -41,16 +40,15 @@ const logout = async (req, res) => {
     }
 
     const user = await User.findOneAndUpdate(
-      { token }, // Find user by token
-      { token: null }, // Set token to null
-      { new: true } // Return the updated user document
+      { token }, 
+      { token: null },
+      { new: true },
     );
-    // Check if user was found and token was removed
     if (!user) {
-      return res.status(404).send({ auth: false, message: "User not found" });
+      return res.status(404).send({ auth: false, message: "Logout Berhasil" });
     }
-
     console.log("token :", user.token);
+
 
     res.status(200).send({ auth: false, token: null });
   } catch (error) {
