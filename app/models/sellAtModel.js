@@ -24,7 +24,7 @@ const sellAtSchema = new mongoose.Schema(
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "category",
     },
   },
   { timestamps: true }

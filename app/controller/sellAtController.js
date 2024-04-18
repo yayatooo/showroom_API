@@ -32,9 +32,14 @@ const addSell = async (req, res) => {
     });
 
     await newSell.save();
+
+    const populateSell = await Sell.findOne({ name: name }).populate(
+      "category"
+    );
+
     return res
       .status(201)
-      .json({ message: "Sell data Berhasil Ditambahkan", data: newSell });
+      .json({ message: "Sell data Berhasil Ditambahkan", data: populateSell });
   } catch (error) {
     console.error("Error adding sell data:", error.message);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -62,6 +67,7 @@ const getSell = async (req, res, next) => {
       .skip(parseInt(skip))
       .limit(parseInt(limit))
       .sort("-createdAt")
+      .populate("category")
       .exec();
 
     return res.json({
@@ -79,7 +85,7 @@ const getSellById = async (req, res) => {
   const sellId = req.params.id;
 
   try {
-    const sellData = await Sell.findById(sellId);
+    const sellData = await Sell.findById(sellId).populate("category");
     if (!sellData) {
       return res.status(404).json({ message: "Sell data not found" });
     }
@@ -109,7 +115,20 @@ const deleteSell = async (req, res) => {
 const updateSell = async (req, res) => {
   try {
     const sellId = req.params.id;
-    const update = req.body;
+    // const update = req.body;
+    const category = await Category.findOne({ name: req.body.categoryBike });
+    if (category === undefined) {
+      throw new Error("Category Not Found")
+    }
+    const {name, policeNumber, frameNumber,price, capitalPrice} = req.body
+    const update = {
+      name,
+      policeNumber,
+      frameNumber,
+      price,
+      capitalPrice,
+      category: category._id,
+    }
     const updatedSell = await Sell.findByIdAndUpdate(sellId, update, {
       new: true,
     });
