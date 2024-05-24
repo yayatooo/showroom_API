@@ -8,7 +8,7 @@ const soldAtRouter = require("./app/routers/soldAtRouter");
 const userAuthRouter = require("./app/routers/userAuthRouter");
 const url = "mongodb://127.0.0.1:27017/showroom";
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 3000;
 
 mongoose
   .connect(url)
@@ -19,6 +19,9 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 app.use(express.json());
 app.use(cors());
 app.use(sellAtRouter);
