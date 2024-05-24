@@ -7,6 +7,16 @@ const userAuthSchema = new mongoose.Schema({
   //   type: String,
   //   require: true,
   // },
+  // {
+//     "version": 2,
+//     "builds": [
+//       { "src": "index.js", "use": "@vercel/node" }
+//     ],
+//     "routes": [
+//       { "src": "/(.*)", "dest": "/" }
+//     ]
+//   }
+  
   email: {
     type: String,
     required: true,
