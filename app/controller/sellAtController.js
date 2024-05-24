@@ -22,6 +22,20 @@ const addSell = async (req, res) => {
       { new: true, upsert: true }
     );
 
+    // const images = req.files.map(file => {
+    //   if (file.buffer) {
+    //     return {
+    //       url: `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+    //       altText: 'photo' // You can adjust this to include alt text if provided
+    //     };
+    //   } else {
+    //     // Handle the case when file.buffer is undefined
+    //     console.error('Error: file.buffer is undefined');
+    //     return { url: '', altText: '' };
+    //   }
+    // });
+    
+
     const newSell = new Sell({
       name,
       policeNumber,
@@ -29,6 +43,7 @@ const addSell = async (req, res) => {
       price,
       capitalPrice,
       category: category._id,
+      // images
     });
 
     await newSell.save();
