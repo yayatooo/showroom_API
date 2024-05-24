@@ -11,12 +11,10 @@ if (!fs.existsSync(uploadDir)) {
 // Set up multer storage configuration with custom filename
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Specify the destination directory for uploaded files
     cb(null, 'uploads');
   },
   filename: (req, file, cb) => {
     // Generate a unique filename based on the original filename
-    // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.originalname);
   }
 });

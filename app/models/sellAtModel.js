@@ -26,24 +26,24 @@ const sellAtSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
     },
-    // images: {
-    //   type: [
-    //     {
-    //       type: {
-    //         url: String,
-    //       },
-    //       altText: {
-    //         type: String,
-    //       },
-    //     },
-    //   ],
-    //   validate: {
-    //     validator: function (array) {
-    //       return array.length === 3;
-    //     },
-    //     message: "You must provide exactly 3 images.",
-    //   },
-    // },
+    images: {
+      type: [
+        {
+          type: {
+            url: String,
+          },
+          altText: {
+            type: String,
+          },
+        },
+      ],
+      validate: {
+        validator: function (array) {
+          return array.length === 3;
+        },
+        message: "You must provide exactly 3 images.",
+      },
+    },
   },
   { timestamps: true }
 );

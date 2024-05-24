@@ -22,18 +22,10 @@ const addSell = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    // const images = req.files.map(file => {
-    //   if (file.buffer) {
-    //     return {
-    //       url: `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
-    //       altText: 'photo' // You can adjust this to include alt text if provided
-    //     };
-    //   } else {
-    //     // Handle the case when file.buffer is undefined
-    //     console.error('Error: file.buffer is undefined');
-    //     return { url: '', altText: '' };
-    //   }
-    // });
+    const images = req.files.map(file => ({
+      url: file.filename,
+      altText: 'photo' // You can adjust this to include alt text if provided
+    }));
     
 
     const newSell = new Sell({
@@ -43,7 +35,7 @@ const addSell = async (req, res) => {
       price,
       capitalPrice,
       category: category._id,
-      // images
+      images
     });
 
     await newSell.save();
@@ -51,6 +43,8 @@ const addSell = async (req, res) => {
     const populateSell = await Sell.findOne({ name: name }).populate(
       "category"
     );
+
+    populateSell.images = newSell.images
 
     return res
       .status(201)

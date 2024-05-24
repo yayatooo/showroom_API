@@ -28,6 +28,10 @@ const userAuthSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+  token: {
+    type: String,
+    default: null,
+  },
 });
 
 userAuthSchema.pre("save", async function (next) {

@@ -1,11 +1,7 @@
 const getToken = (req) => {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer")) {
-    return null;
-  }
-
-  const token = auth.split(" ")[1];
-  return token || null;
+  const header = req.header('Authorization');
+  if (!header) return null;
+  return header.replace('Bearer ', '');
 };
 
 module.exports = getToken;

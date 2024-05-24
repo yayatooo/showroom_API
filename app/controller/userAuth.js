@@ -12,6 +12,8 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.login(email, password);
     const token = createToken(user._id);
+    user.token = token;
+    await user.save();
     res.status(201).send({ auth: true, token: token, userId: user._id });
   } catch (error) {
     res.status(400).send({ error: error.message });
@@ -24,6 +26,8 @@ const registerUser = async (req, res) => {
   try {
     const user = await User.signup(email, password);
     const token = createToken(user._id);
+    user.token = token;
+    await user.save();
     res.status(200).send({ email, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -31,29 +35,22 @@ const registerUser = async (req, res) => {
 };
 
 const logout = async (req, res) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
   try {
-    const token = getToken(req);
-    if (!token) {
-      return res
-        .status(401)
-        .send({ auth: false, message: "No token provided" });
-    }
+    const user = await User.findOne({ token });
 
-    const user = await User.findOneAndUpdate(
-      { token }, 
-      { token: null },
-      { new: true },
-    );
     if (!user) {
-      return res.status(404).send({ auth: false, message: "Logout Berhasil" });
+      return res.status(404).json({ auth: false, message: "User not found" });
     }
-    console.log("token :", user.token);
 
+    // Remove the token from the user
+    user.token = null;
+    await user.save();
 
-    res.status(200).send({ auth: false, token: null });
+    res.status(200).json({ auth: false, message: "Logout successful" });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ error: "Server Error" });
+    res.status(500).json({ error: "Server Error" });
   }
 };
 
