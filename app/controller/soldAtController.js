@@ -1,10 +1,33 @@
 const Sold = require("../models/soldAtModel");
 const Sell = require("../models/sellAtModel");
+const Category = require("../models/categoryBikeModel");
 
 const getSold = async (req, res) => {
   try {
-    const sold = await Sold.find();
-    res.json({ data: sold, message: "Success" });
+    let { category, skip = 0, limit = 10 } = req.query;
+
+    const filter = {};
+
+    if (category) {
+      const categoryObject = await Category.findOne({ name: category });
+
+      if (!categoryObject) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      filter.category = categoryObject._id;
+    }
+
+    let count = await Sold.countDocuments();
+    let solds = await Sold.find(filter)
+      .skip(parseInt(skip))
+      .limit(parseInt(limit))
+      .sort("-createdAt")
+      .populate("category")
+      .exec();
+
+    // const sold = await Sold.find();
+    res.json({ data: solds, count: count, message: "Success" });
   } catch (error) {
     console.error("Error fetching sold data:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -28,6 +51,7 @@ const selledBike = async (req, res) => {
       price: bike.price,
       capitalPrice: bike.capitalPrice,
       category: bike.category,
+      // soldDate: new Date()
     });
     // save sold bike
     await soldBike.save();

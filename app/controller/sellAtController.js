@@ -22,10 +22,10 @@ const addSell = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    const images = req.files.map(file => ({
-      url: file.filename,
-      altText: 'photo' // You can adjust this to include alt text if provided
-    }));
+    // const images = req.files.map(file => ({
+    //   url: file.filename,
+    //   altText: 'photo' // You can adjust this to include alt text if provided
+    // }));
     
 
     const newSell = new Sell({
@@ -35,7 +35,7 @@ const addSell = async (req, res) => {
       price,
       capitalPrice,
       category: category._id,
-      images
+      // images
     });
 
     await newSell.save();
@@ -44,7 +44,7 @@ const addSell = async (req, res) => {
       "category"
     );
 
-    populateSell.images = newSell.images
+    // populateSell.images = newSell.images
 
     return res
       .status(201)
